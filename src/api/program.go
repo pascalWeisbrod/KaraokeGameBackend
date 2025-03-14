@@ -15,6 +15,8 @@ func Start() {
     http.HandleFunc("/join", registerUser)
     
     http.ListenAndServe(":8080", nil)
+
+    fmt.Println("Listening...")
 }
 
 func registerUser(w http.ResponseWriter, req *http.Request) {
