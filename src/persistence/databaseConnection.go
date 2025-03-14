@@ -20,6 +20,7 @@ func Connect() *sql.DB {
         Net:    "tcp",
         Addr:   "127.0.0.1:3306",
         DBName: "music",
+        AllowNativePasswords: true,
     }
     // Get a database handle.
     var err error
