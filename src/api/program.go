@@ -7,6 +7,10 @@ import (
     "encoding/json"
 )
 
+type resp struct {
+    data any
+}
+
 var users = model.NewUserList()
 
 func Start() {
