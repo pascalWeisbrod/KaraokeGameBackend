@@ -17,6 +17,15 @@ func Start() {
     http.ListenAndServe(":8080", nil)
 }
 
+func RegisterEndpoint(path string, function func(w http.ResponseWriter, req *http.Request)) {
+    http.HandleFunc(path, function)
+}
+
+func WriteToResponse(w http.ResponseWriter, data any) {
+    encoder := json.NewEncoder(w)
+    encoder.Encode(data)
+}
+
 func registerUser(w http.ResponseWriter, req *http.Request) {
     decoder := json.NewDecoder(req.Body)
     var user model.User
