@@ -15,9 +15,9 @@ func main() {
     defer db.Close()
 
     api.RegisterEndpoint("/db", func(w http.ResponseWriter, req *http.Request) {
-        rows, err := db.Query("select * from account")
+        rows, err := db.Query("select * from account;")
         if err != nil {
-            api.WriteToResponse(w, "Something went wrong!")
+            api.WriteToResponse(w, err.Error())
             return
         }
         api.WriteToResponse(w, rows)
