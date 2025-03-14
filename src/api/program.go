@@ -14,7 +14,7 @@ func Start() {
     http.HandleFunc("/reset", registerUser)
     http.HandleFunc("/join", registerUser)
     
-    http.ListenAndServe(":443", nil)
+    http.ListenAndServe(":8080", nil)
 }
 
 func registerUser(w http.ResponseWriter, req *http.Request) {
