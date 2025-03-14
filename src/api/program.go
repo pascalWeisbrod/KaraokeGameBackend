@@ -9,7 +9,7 @@ import (
 
 var users = model.NewUserList()
 
-func connect() {
+func Start() {
     http.HandleFunc("/hello", helloworld) 
     http.HandleFunc("/reset", registerUser)
     http.HandleFunc("/join", registerUser)

@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-    "main/persistence"
+	"main/api"
 )
 
 
 func main() {
     fmt.Println("Starting...")
-    db := persistence.Connect()
-    db.Query("show tables;")
-    defer db.Close()
+    api.Start()
 }
