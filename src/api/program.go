@@ -25,7 +25,7 @@ func RegisterEndpoint(path string, function func(w http.ResponseWriter, req *htt
     http.HandleFunc(path, function)
 }
 
-func WriteToResponse(w http.ResponseWriter, data any) {
+func WriteToResponse[T any](w http.ResponseWriter, data any) {
     encoder := json.NewEncoder(w)
     encoder.Encode(data)
 }
