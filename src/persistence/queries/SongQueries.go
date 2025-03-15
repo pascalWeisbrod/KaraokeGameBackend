@@ -8,7 +8,7 @@ import (
 type Named struct { Name string }
 
 func GetSongNames(db *sql.DB) persistence.Response[Named] {
-    rows, err := db.Query("select text from song;")
+    rows, err := db.Query("select name from song;")
     defer rows.Close()
 
     if err != nil {
