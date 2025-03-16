@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"main/api"
+	"main/model"
 	"main/persistence"
 	"main/persistence/queries"
 	"net/http"
@@ -15,9 +16,9 @@ func main() {
     db := persistence.Connect()
     defer db.Close()
 
-    api.RegisterEndpoint("/db", func(w http.ResponseWriter, req *http.Request) {
-        data := queries.GetSongNames(db)
-        api.WriteToResponse[persistence.Response[queries.Named]](w, data)
+    api.RegisterEndpoint("/songs", func(w http.ResponseWriter, req *http.Request) {
+        data := queries.GetSongs(db)
+        api.WriteToResponse[persistence.Response[model.Song]](w, data)
     })
     api.Start()
 }
