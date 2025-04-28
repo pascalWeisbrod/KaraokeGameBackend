@@ -1,16 +1,22 @@
 package queries
 
 import (
-	"database/sql"
 	"fmt"
+	"database/sql"
 	"main/model"
 	"main/persistence"
 )
 
-type Named struct { Name string }
+type SongQueries struct {
+    db *sql.DB
+}
 
-func GetSongs(db *sql.DB) persistence.Response[model.Song] {
-    rows, err := db.Query("select * from song;")
+func InitiateSongService (dbConnection *sql.DB) SongQueries {
+    return SongQueries{db: dbConnection}
+}
+
+func (s SongQueries) GetSongs() persistence.Response[model.Song] {
+    rows, err := s.db.Query("select * from song;")
     defer rows.Close()
 
     if err != nil {
@@ -28,21 +34,20 @@ func GetSongs(db *sql.DB) persistence.Response[model.Song] {
     }
     return persistence.Response[model.Song]{ Success: true, Data: songs }
 }
-func GetSongNames(db *sql.DB) persistence.Response[Named] {
-    rows, err := db.Query("select name from song;")
-    defer rows.Close()
+
+func (s SongQueries) PostSong(song model.Song) persistence.Response[model.Song] {
+    result, err := s.db.Exec("insert into song (name, album, text) values (?, ?, ?)", song.Name, song.Album, song.Text)
 
     if err != nil {
-        return persistence.Response[Named]{ Success: false, ErrorMessage: err.Error() }
+        return persistence.Response[model.Song]{ Success: false, ErrorMessage: "Something went wrong trying to access the database." }
     }
-    
-    var data []Named
-    for rows.Next() {
-        var named Named
-        if err := rows.Scan(&named.Name); err != nil {
-            return persistence.Response[Named]{ Success: false, ErrorMessage: err.Error() }
-        }
-        data = append(data, named)
+
+    resultID, err := result.LastInsertId()
+    song.ID = int(resultID)
+
+    if err != nil {
+        return persistence.Response[model.Song]{ Success: false, ErrorMessage: "Something went wrong trying to access the database." }
     }
-    return persistence.Response[Named]{ Success: true, Data: data }
+
+    return persistence.Response[model.Song]{ Success: true, Data: []model.Song{song} }
 }

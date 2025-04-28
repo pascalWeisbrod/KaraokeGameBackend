@@ -1,54 +1,46 @@
 package api
 
 import (
-    "fmt"
     "net/http"
-    "main/model"
-    "encoding/json"
+    "main/api/endpoint"
 )
 
-type resp struct {
-    data any
+type Server struct {
+    port string
+    running bool
+    paths []string
 }
 
-var users = model.NewUserList()
-
-func Start() {
-    http.HandleFunc("/hello", helloworld) 
-    http.HandleFunc("/reset", registerUser)
-    http.HandleFunc("/join", registerUser)
-    
-    http.ListenAndServe(":8080", nil)
+func RequestServer(port string) Server {
+    s := Server{ port: port, running: false, paths: make([]string, 0)}
+    return s
 }
 
-func RegisterEndpoint(path string, function func(w http.ResponseWriter, req *http.Request)) {
-    http.HandleFunc(path, function)
+func (s Server) Start() {
+    if s.running {
+        panic("Server was already started. Cannot start.")
+    }
+    s.running = true
+
+    http.ListenAndServe(s.port, nil)
 }
 
-func WriteToResponse[T any](w http.ResponseWriter, data any) {
-    encoder := json.NewEncoder(w)
-    encoder.Encode(data)
+func RegisterEndpoint(s *Server, path string, ep func(w http.ResponseWriter, req *http.Request)) {
+    if s.running {
+        panic("Server is already running. Cannot register Endpoints.")
+    }
+    http.HandleFunc(path, ep)
 }
 
-func registerUser(w http.ResponseWriter, req *http.Request) {
-    decoder := json.NewDecoder(req.Body)
-    var user model.User
-    err := decoder.Decode(&user)
-    if err != nil {
-        fmt.Fprintf(w, err.Error())
-        return
+func RegisterIEndpoint[T any](s *Server, ep endpoint.IEndpoint[T]) {
+    if s.running {
+        panic("Server is already running. Cannot register Endpoints.")
+    }
+    for _, p := range s.paths {
+        if p == ep.Path() {
+            panic("Path already exists : " + p)
+        }
     }
 
-    users.Add(user)
-
-    encoder := json.NewEncoder(w)
-    encoder.Encode(users)
-} 
-
-func resetUserList(w http.ResponseWriter, req *http.Request) {
-    users = model.NewUserList()
-}
-
-func helloworld(w http.ResponseWriter, req *http.Request) {
-    fmt.Fprintf(w, "Hello World")
+    http.HandleFunc(ep.Path(), endpoint.RouteRequest(ep))
 }
